@@ -1,0 +1,12 @@
+<!-- Launch file for ardrone velocity-->
+
+<launch>
+
+    <include file="$(find robot_localization)/launch/EKF_PRED.launch"/>
+  
+    <node pkg="robot_localization" type="ping_node" name="ping_node" clear_params="true">
+    </node>
+    <node pkg="velocity_control" type="run_control" name="run_control" clear_params="true">
+    </node>
+
+</launch>
