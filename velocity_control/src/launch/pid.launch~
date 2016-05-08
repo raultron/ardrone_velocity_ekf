@@ -1,0 +1,21 @@
+<!-- Launch file for ardrone velocity control -->
+
+<launch>
+
+  
+    <node pkg="velocity_control" type="run_control" name="run_control" clear_params="true">
+      <param name="Kp" value="0.45" />
+      <param name="Ki" value="0.15" />
+      <param name="Kd" value="0.05" />
+      <param name="limit_x" value="0.5" />
+      <param name="limit_y" value="0.5" />
+      <param name="windup" value="0.6" />
+      <param name="beta" value="0.9" />
+      <param name="derv_filter" value="0.45" />
+      <param name="derv_median" value="0.15" />
+      <param name="derv_smith" value="0.05" />
+
+
+    </node>
+
+</launch>
