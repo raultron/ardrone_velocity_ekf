@@ -62,7 +62,14 @@ The main modifications are:
 3. Smith filter for the derivative part. 
 4. The derivative part can be based on the error or the velocity. In this use case the error based derivative term delivered better results. 
 5. Set point weighting is used to reduce the overshoot.
-6. A open loop feedforward controller can be used additionally to accelerate the set point reaching based on calculated tilt angle. 
+6. A open loop feedforward controller can be additionally used to accelerate the set point reaching based on calculated tilt angle. 
+
+Package: convert_data
+	convert_data -> convert_nav
+	convert_data -> vrep_connection
+
+This package can be used for two use cases. First the convert_nav node is designed the case of playing rosbag files. It creates new time stamps for the signals and allows the test case with other nodes which are running in the actual ros time. Without this package huge time gaps can occur. This node also converts navdata to odometry messages and vica versa. The second node vrep_connection is build to manage the communication with vrep. It introduces a time delay for both the incoming and outcoming data of vrep to simulate real world communication delays. 
+
 
 
 
