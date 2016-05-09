@@ -68,7 +68,11 @@ Package: convert_data
 	convert_data -> convert_nav
 	convert_data -> vrep_connection
 
-This package can be used for two use cases. First the convert_nav node is designed the case of playing rosbag files. It creates new time stamps for the signals and allows the test case with other nodes which are running in the actual ros time. Without this package huge time gaps can occur. This node also converts navdata to odometry messages and vica versa. The second node vrep_connection is build to manage the communication with vrep. It introduces a time delay for both the incoming and outcoming data of vrep to simulate real world communication delays. 
+This package can be used for two use cases. First the convert_nav node is designed the case of playing rosbag files.
+It creates new time stamps for the signals and allows the test case with other nodes which are running in the actual ros time. 
+Without this package huge time gaps can occur. This node also converts navdata to odometry messages and vica versa. 
+The second node vrep_connection is build to manage the communication with vrep.
+It introduces a time delay for both the incoming and outcoming data of vrep to simulate real world communication delays. 
 
 
 
