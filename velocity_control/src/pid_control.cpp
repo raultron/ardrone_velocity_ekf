@@ -227,8 +227,8 @@ void PID_Control::pid_control()
     control_output_pid.angular.y = 1;
 
     // Based on u(k)
-    control_output_pid.linear.x = std::min(max_output(0), std::max(-max_output(0), -0.1*vel_xy(0) + control_output_pid.linear.x));
-    control_output_pid.linear.y = std::min(max_output(1), std::max(-max_output(1), -0.1*vel_xy(1) + control_output_pid.linear.y));
+    control_output_pid.linear.x = std::min(max_output(0), std::max(-max_output(0), control_output_pid.linear.x));
+    control_output_pid.linear.y = std::min(max_output(1), std::max(-max_output(1), control_output_pid.linear.y));
 
     // Debugging information
     Eigen::Vector3d tmp = Control.col(0).cwiseProduct(gain_xy);
