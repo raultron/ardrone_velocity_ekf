@@ -206,7 +206,6 @@ namespace RobotLocalization
     {
       // Determine how much time has passed since our last measurement
      predtime = measurement.time_ - lastMeasurementTime_;
-     ROS_INFO_STREAM("PredTime: " << predtime);
      FB_DEBUG("Filter is already initialized. Carrying out predict/correct loop...\n"
                "Measurement time is " << std::setprecision(20) << measurement.time_ <<
                ", last measurement time is " << lastMeasurementTime_ << ", delta is " << predtime << "\n");
@@ -272,7 +271,6 @@ namespace RobotLocalization
                              sum = sum + preddelta;
                          }
                      }
-
                     predup = predup + input_delta;
                }
              }
@@ -418,44 +416,7 @@ namespace RobotLocalization
      lastFutureUpdateTime_ = measurement.time_;
      FutureCorrect(measurement);
     }
-}
-
-//         //Sums up prediction. To ensure linearized assumptions max step time is limited to 10ms
-//         while(predup != predtime && !queue.empty())
-//         {
-
-//             if(!queue.empty())
-//             {
-//                 control_next = queue.top();
-//                 queue.push(control_input);
-//                 //calculate step size of control input and predict till new control command
-//                 input_delta = control_next.time_ - control_input.time_;
-
-//                 // To ensure that we do not overshoot in time
-//                 if(input_delta >= (predtime - predup))
-//                 {
-//                     input_delta = (predtime - predup);
-//                 }
-//                 // If we need to predict longer in future as input_delta
-//                 else
-//                 {
-//                     queue.pop();
-//                 }
-//                 ROS_INFO_STREAM("InPut_Delta: " << input_delta.toSec());
-//                 stepaheadPrediction(input_delta.toSec(), control_input.control_);
-//                 predup = predup + input_delta;
-//             }
-//             else
-//             {
-//                 stepaheadPrediction(0.005, control_input.control_);
-//                 predup = predtime;
-//             }
-//        }
-//     }
-
-
-
-
+  }
 
   void FilterBase::setDebug(const bool debug, std::ostream *outStream)
   {

@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(robot_localization)
 
 set (CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_FLAGS "-std=c++0x ${CMAKE_CXX_FLAGS}")
 
 find_package(catkin REQUIRED COMPONENTS
   diagnostic_msgs
@@ -15,6 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
   roslint
   sensor_msgs
   std_msgs
+  tf
   tf2
   tf2_geometry_msgs
   tf2_ros)
@@ -146,50 +148,6 @@ install(FILES
   LICENSE
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
-
-#############
-## Testing ##
-#############
-
-if (CATKIN_ENABLE_TESTING)
-
-  # Not really necessary, but it will cause the build to fail if it's
-  # missing, rather than failing once the tests are being executed
-  find_package(rosbag REQUIRED)
-  find_package(rostest REQUIRED)
-
-  #### FILTER BASE TESTS ####
-  catkin_add_gtest(filter_base-test test/test_filter_base.cpp)
-  target_link_libraries(filter_base-test filter_base ${catkin_LIBRARIES})
-
-  #### EKF TESTS #####
-  add_rostest_gtest(test_ekf
-                    test/test_ekf.test
-                    test/test_ekf.cpp)
-  target_link_libraries(test_ekf ros_filter ekf ${catkin_LIBRARIES} ${rostest_LIBRARIES})
-
-  add_rostest_gtest(test_ekf_localization_node_interfaces
-                    test/test_ekf_localization_node_interfaces.test
-                    test/test_ekf_localization_node_interfaces.cpp)
-  target_link_libraries(test_ekf_localization_node_interfaces ${catkin_LIBRARIES} ${rostest_LIBRARIES})
-
-  add_rostest_gtest(test_ekf_localization_node_bag1
-                    test/test_ekf_localization_node_bag1.test
-                    test/test_localization_node_bag_pose_tester.cpp)
-  target_link_libraries(test_ekf_localization_node_bag1 ${catkin_LIBRARIES} ${rostest_LIBRARIES})
-
-  add_rostest_gtest(test_ekf_localization_node_bag2
-                    test/test_ekf_localization_node_bag2.test
-                    test/test_localization_node_bag_pose_tester.cpp)
-  target_link_libraries(test_ekf_localization_node_bag2 ${catkin_LIBRARIES} ${rostest_LIBRARIES})
-
-  add_rostest_gtest(test_ekf_localization_node_bag3
-                    test/test_ekf_localization_node_bag3.test
-                    test/test_localization_node_bag_pose_tester.cpp)
-  target_link_libraries(test_ekf_localization_node_bag3 ${catkin_LIBRARIES} ${rostest_LIBRARIES})
-
-endif()
-
 
 
 ##################

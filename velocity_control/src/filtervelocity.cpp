@@ -1,6 +1,6 @@
 #include "ardrone_velocity/filtervelocity.hpp"
 #include "math.h"
-#include <Eigen/Dense>
+#include <eigen3/Eigen/Dense>
 #include <cstdint>
 #include <cstdio>
 
@@ -18,7 +18,7 @@ FilterVelocity::FilterVelocity()
 
 }
 
-double FilterVelocity::lowpass_filter(double new_value){
+double FilterVelocity::filter(double new_value){
     double result = 0.0;
     int i;
     filter_input_buffer(0) = new_value;
@@ -78,6 +78,7 @@ void FilterVelocity::smith_filter(double cutoff_frequency, double delta_t, doubl
     error_at(1) = error_at(0);
     error_at(0) = error;
     double c = 1;
+    //Filter was designed based on Smith III, Intro. to Digital Filters With Audio Applications. Filter from the ROS PID package.
     if (cutoff_frequency != -1)
     {
       // Check if tan(_) is really small, could cause c = NaN
@@ -97,6 +98,7 @@ void FilterVelocity::smith_filter(double cutoff_frequency, double delta_t, doubl
     filtered_error_at(0) = (1/(1+c*c+1.414*c))*(error_at(2)+2*error_at(1)+error_at(0)-(c*c-1.414*c+1)*filtered_error_at(2)-(-2*c*c+2)*filtered_error_at(1));
 
     // Take derivative of error
+    // First the raw, unfiltered data:
     error_deriv_at(2) = error_deriv_at(1);
     error_deriv_at(1) = error_deriv_at(0);
     error_deriv_at(0) = (error_at(0)-error_at(1))/delta_t;

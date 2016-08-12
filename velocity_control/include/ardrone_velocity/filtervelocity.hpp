@@ -2,13 +2,13 @@
 #define FILTERVELOCITY_HPP
 #include <vector>
 #include <cstdint>
-#include <Eigen/Dense>
+#include <eigen3/Eigen/Dense>
 
 class FilterVelocity
 {
 public:
     FilterVelocity();
-    double lowpass_filter(double new_value);
+    double filter(double new_value);
     void median_filter(double derivative, double &new_derivative);
     void smith_filter(double cutoff_frequency, double delta_t, double error, double &new_derivative);
 

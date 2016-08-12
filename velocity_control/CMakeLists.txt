@@ -10,9 +10,8 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   nav_msgs
   roscpp
-  rospy
   std_msgs
-  tf2
+  tf
 )
 
 find_package(Eigen3)
@@ -52,27 +51,28 @@ include_directories(${catkin_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIRS})
 
 ## Add library
 add_library(pid_control src/pid_control.cpp)
-add_library(mpid_control src/mpid_control.cpp)
-add_library(pi_pd_control src/pi_pd_control.cpp)
 add_library(filtervelocity src/filtervelocity.cpp)
+add_library(coordinate_transform src/coordinate_transform.cpp)
 ## Declare a cpp executable
 add_executable(run_control src/run_control.cpp)
+add_executable(run_transform src/run_transform.cpp)
 
 add_dependencies(run_control ${PROJECT_NAME}_gencfg)
 add_dependencies(pid_control ${PROJECT_NAME}_gencfg)
+add_dependencies(run_transform  ${PROJECT_NAME}_gencfg)
+add_dependencies(coordinate_transform  ${PROJECT_NAME}_gencfg)
 
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(run_control pid_control ${catkin_LIBRARIES} ${EIGEN3_LIBRARIES})
-target_link_libraries(run_control mpid_control ${catkin_LIBRARIES} ${EIGEN3_LIBRARIES})
-target_link_libraries(run_control pi_pd_control ${catkin_LIBRARIES} ${EIGEN3_LIBRARIES})
 target_link_libraries(pid_control filtervelocity ${catkin_LIBRARIES} ${EIGEN3_LIBRARIES})
-target_link_libraries(pi_pd_control filtervelocity ${catkin_LIBRARIES} ${EIGEN3_LIBRARIES})
+target_link_libraries(coordinate_transform filtervelocity ${catkin_LIBRARIES} ${EIGEN3_LIBRARIES})
+target_link_libraries(run_transform  coordinate_transform  ${catkin_LIBRARIES} ${EIGEN3_LIBRARIES})
 
 ##################
 # FOR QT CREATOR
 ##################
 file(GLOB_RECURSE QT_MOC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} FOLLOW_SYMLINKS include/*.h)
-FILE(GLOB_RECURSE INC_ALL "include/coop_uv_qt/*.hpp")
+FILE(GLOB_RECURSE INC_ALL "include/ardrone_velocity/*.hpp")
 FILE(GLOB_RECURSE ${CMAKE_CURRENT_SOURCE_DIR} FOLLOW_SYMLINKS src/*.cpp)
 

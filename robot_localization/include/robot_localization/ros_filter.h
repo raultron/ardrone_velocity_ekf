@@ -46,6 +46,7 @@
 #include <geometry_msgs/TwistWithCovarianceStamped.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <geometry_msgs/TwistStamped.h>
+#include <geometry_msgs/PoseStamped.h>
 #include <tf2_ros/transform_listener.h>
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2_ros/message_filter.h>
@@ -66,6 +67,11 @@
 #include <queue>
 #include <string>
 #include <vector>
+
+#include <tf/transform_broadcaster.h>
+#include <tf/transform_listener.h>
+#include <tf/tf.h>
+
 
 //class PingThread;
 //PingThread ping;
@@ -203,7 +209,7 @@ template<class T> class RosFilter
     //! @brief this method merges the pose and twist input in a queue 
     //! and pushs back the correct time corrected input
     //!
-    Measurement getMeasurementInput(Measurement &pose, Measurement &twist);
+    Measurement getMeasurementInput(Measurement pose, Measurement twist);
 
     //! @brief Callback method for receiving all odometry messages
     //! @param[in] msg - The ROS odometry message to take in.
@@ -226,6 +232,9 @@ template<class T> class RosFilter
 
     void PingCallback(const std_msgs::StringConstPtr &ping_msg,
                                         const std::string &topicName);
+
+    void GroundTruthVelCallback(const geometry_msgs::PoseStampedConstPtr &quadpose,
+                                const std::string &topicName);
 
     //! @brief Callback method for receiving all pose messages
     //! @param[in] msg - The ROS stamped pose with covariance message to take in
@@ -473,6 +482,11 @@ template<class T> class RosFilter
     ros::Subscriber pingSub_;
 
 
+    //! @brief the subscriber receives the pose of the quadcopter in the world frame
+    //!
+    ros::Subscriber camposeSub_;
+
+
     //! @brief Vector to hold our IMU message filter subscriber objects so they
     //! don't go out of scope.
     //!
@@ -526,6 +540,8 @@ template<class T> class RosFilter
     MeasurementQueue measurementQueuePose_;
     MeasurementQueue measurementQueuePoseBuffer_;
     MeasurementQueue measurementQueueTwist_;
+    MeasurementQueue measurementQueueCamVel_;
+
     MeasurementQueue measurementQueueTwistBuffer_;
 
 
@@ -646,9 +662,20 @@ template<class T> class RosFilter
     //!
     bool NewMeasurement;
 
+    //! @brief Stores the bool variable if ping request mode is on or off
+    //!
+    bool PingMode;
+
     //! @brief correction term if a bunch of messages arrives with the same time stamp
     //!
     int delay_correct;
+
+    //! @brief old pose of ground truth position for velocity calculation
+    geometry_msgs::PoseStamped quad_old;
+    geometry_msgs::PoseStamped quad_old_old;
+    geometry_msgs::PoseStamped quad_old3;
+
+    tf::TransformListener listener;
 };
 
 }  // namespace RobotLocalization

@@ -172,8 +172,6 @@ namespace RobotLocalization
     Eigen::MatrixXd hphrInv  = (stateToMeasurementSubset * pht + measurementCovarianceSubset).inverse();
     kalmanGainSubset.noalias() = pht * hphrInv;
 
-
-
     innovationSubset = (measurementSubset - stateSubset);
 
     // Wrap angles in the innovation
@@ -195,14 +193,11 @@ namespace RobotLocalization
       }
     }
 
-//    old_measurementSubset = measurementSubset;
-
     // (2) Check Mahalanobis distance between mapped measurement and state.
     if (checkMahalanobisThreshold(innovationSubset, hphrInv, measurement.mahalanobisThresh_))
     {
       // (3) Apply the gain to the difference between the state and measurement: x = x + K(z - Hx)
       state_.noalias() += kalmanGainSubset * innovationSubset;
-
       // (4) Update the estimate error covariance using the Joseph form: (I - KH)P(I - KH)' + KRK'
       Eigen::MatrixXd gainResidual = identity_;
       gainResidual.noalias() -= kalmanGainSubset * stateToMeasurementSubset;
@@ -228,9 +223,9 @@ namespace RobotLocalization
              "delta is " << delta << "\n" <<
              "state is " << state_ << "\n");
 
-    double const    d0 =32.27;
-    double const    d1 = 2.812;
-    double const    n0 = 42.99;
+    double const    d0 = 12.22;
+    double const    d1 = 1.158;
+    double const    n0 = 17.99;
     double const    g = 9.81;
     double const    f1 = 0.37;
 
@@ -251,7 +246,7 @@ namespace RobotLocalization
      A(5,11) = 1;
      A(6,4) = g;
      A(6,6) = -f1;
-     A(7,3) = g;
+     A(7,3) = -g;
      A(7,7) = -f1;
      A(9,3) = -d0;
      A(9,9) = -d1;
@@ -275,22 +270,11 @@ namespace RobotLocalization
              "\nTransfer function Jacobian is:\n" << transferFunctionJacobian_ <<
              "\nProcess noise covariance is:\n" << processNoiseCovariance_ <<
              "\nCurrent state is:\n" << state_ << "\n");
-
+    old_state_ = state_;
     state_ = Ad * state_ + Bd * u;
-//    state_(StateMemberVx) = xVel + ((-sin(roll)*cos(pitch) + sin(pitch))*g - f1*xVel)*T;
-//    state_(StateMemberVy) = yVel + ((-sin(pitch)*cos(roll) + sin(roll) )*g - f1*yVel)*T;
 
     Eigen::MatrixXd Jacobian;
     Jacobian = Ad;
-//    Jacobian(6,3) = 1 - (cos(pitch)*cos(roll))*g*T;
-//    Jacobian(6,4) = 1 + (-sin(pitch)*sin(roll) + cos(pitch))*g*T;
-//    Jacobian(6,6) = 1 -f1*T;
-//    Jacobian(7,4) = 1 - (cos(pitch)*cos(roll))*g*T;
-//    Jacobian(7,3) = 1 + (-sin(pitch)*sin(roll) + cos(roll))*g*T;
-//    Jacobian(7,7) = 1 - f1*T;
-
-
-
 
     // Handle wrapping
     wrapStateAngles();
@@ -309,10 +293,10 @@ namespace RobotLocalization
   void Ekf::stepaheadPrediction(const double &delta, const Eigen::VectorXd u)
   {
 
-      double const    d0 =32.27;
-      double const    d1 = 2.812;
-      double const    n0 = 42.99;
-      double const    g = 9.8;
+      double const    d0 = 12.22;
+      double const    d1 = 1.158;
+      double const    n0 = 17.99;
+      double const    g = 9.81;
       double const    f1 = 0.37;
 
       futureState_(StateMemberAx) = 0;
@@ -325,41 +309,6 @@ namespace RobotLocalization
       double yVel = futureState_(StateMemberVy);
 
       Eigen::MatrixXd A =  Eigen::MatrixXd::Zero(15,15);
-//       A(0,6) = 1;
-//       A(1,7) = 1;
-//       A(2,8) = 1;
-//       A(3,9) = 1;
-//       A(4,10) = 1;
-//       A(5,11) = 1;
-//       A(6,4) = g;
-//       A(6,6) = -f1;
-//       A(7,3) = g;
-//       A(7,7) = -f1;
-//       A(8,2) = -59.56;
-//       A(8,8) = -8.333;
-//       A(9,3) = -d0;
-//       A(9,9) = -d1;
-//       A(10,4) = -d0;
-//       A(10,10) = -d1;
-//       A(11,5) = -1130.6;
-//       A(11,11) = -81.91;
-
-//       Eigen::MatrixXd B = Eigen::MatrixXd::Zero(15,4);
-//       B(10,0) =  n0 * 12 * 3.14/180;
-//       B(9,1) =  n0 * 12 * 3.14/180;
-//       B(11,2) = 991.45;
-//       B(8,3) = 40.18;
-
-      //     A(8,2) = -59.56;
-      //     A(8,8) = -8.333;
-      //      A(5,11) = 1;
-      //      A(2,8) = 1;
-      // A(11,5) = -1130.6; // We dont need yaw
-      // A(11,11) = -10; // -81.91; // V_yaw -> new model
-//      B(5,2) = 78.58;  // B(11,2) =  250;  // 991.45; // V_yaw -> new model
-//      B(8,3) =  534.9; // 40.18;
-
-
 
       A(0,6) = 1;
       A(1,7) = 1;
@@ -367,7 +316,7 @@ namespace RobotLocalization
       A(4,10) = 1;
       A(6,4) = g;
       A(6,6) = -f1;
-      A(7,3) = g;
+      A(7,3) = -g;
       A(7,7) = -f1;
       A(9,3) = -d0;
       A(9,9) = -d1;
@@ -389,8 +338,6 @@ namespace RobotLocalization
       Bd =  B * T + A * B * pow(T,2) / 2;
 
       futureState_ = Ad * futureState_ + Bd * u;
-//      futureState_(StateMemberVx) = xVel + ((+sin(roll)*cos(pitch) + sin(pitch))*g - f1*xVel)*T;
-//      futureState_(StateMemberVy) = yVel + ((+sin(pitch)*cos(roll) + sin(roll) )*g - f1*yVel)*T;
   }
 
 

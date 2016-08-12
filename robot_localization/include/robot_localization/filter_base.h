@@ -437,6 +437,8 @@ class FilterBase
     //! filter. The values in this vector are what get reported by the node.
     //!
     Eigen::VectorXd state_;
+    Eigen::VectorXd old_state_;
+
 
     //! @brief The Kalman filter transfer function
     //!

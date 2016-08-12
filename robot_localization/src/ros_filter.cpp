@@ -48,6 +48,10 @@
 #include "std_msgs/String.h"
 #include <string>
 
+#include <tf/transform_broadcaster.h>
+#include <tf/transform_listener.h>
+#include <tf/tf.h>
+
 namespace RobotLocalization
 {
   template<typename T>
@@ -211,6 +215,11 @@ namespace RobotLocalization
     {
         measurementQueueTwist_.push(meas);
     }
+    if(topicName.find("odom2") != std::string::npos)
+    {
+        measurementQueueCamVel_.push(meas);
+    }
+
   }
 
   template<typename T>
@@ -260,7 +269,7 @@ namespace RobotLocalization
   }
 
   template<typename T>
-  Measurement RosFilter<T>::getMeasurementInput(Measurement &pose, Measurement &twist)
+  Measurement RosFilter<T>::getMeasurementInput(Measurement pose, Measurement twist)
   {
       Measurement measurement;
 
@@ -278,9 +287,9 @@ namespace RobotLocalization
       measurement.measurement_ = pose.measurement_ + twist.measurement_;
       measurement.topicName_ = pose.topicName_;
       measurement.updateVector_ = updatevector;
-      measurement.time_ = pose.time_;
+      measurement.time_ = twist.time_;
       measurement.covariance_ = pose.covariance_ + twist.covariance_;
-      measurement.mahalanobisThresh_ = pose.mahalanobisThresh_;
+      measurement.mahalanobisThresh_ = twist.mahalanobisThresh_;
 
       return measurement;
   }
@@ -524,7 +533,6 @@ namespace RobotLocalization
        {
            while( !measurementQueueTwistBuffer_.empty() && !measurementQueuePoseBuffer_.empty() && !measurementQueuePose_.empty() && !measurementQueueTwist_.empty() && !controlQueue_.empty())
            {
-               ROS_INFO("USE OLD Measurement");
                Measurement twist = measurementQueueTwistBuffer_.top();
                if (measurementQueuePoseBuffer_.top().time_ < twist.time_ - delayXYZ)
                {
@@ -554,9 +562,8 @@ namespace RobotLocalization
   template<typename T>
   void RosFilter<T>::integrateMeasurements(ros::Time currentTime, ControlQueue &control_queue)
   {
-    ROS_INFO_STREAM("Pose: "<< measurementQueuePose_.size() << " Twist: "<< measurementQueueTwist_.size() << " Control " << controlQueue_.size());
     // If we have pose and twist measurements in the queue as well as control input, process them
-    if (!measurementQueueTwist_.empty() && !measurementQueuePose_.empty() && !controlQueue_.empty())
+    if (!measurementQueueTwist_.empty() && !measurementQueuePose_.empty() && !controlQueue_.empty() )
     {
        count_meaus = count_meaus + 1;
        //get pose and twist measurement, but pose arrives earlier. We assume pose arrives 4 timestaps earlier due to lower processing
@@ -602,11 +609,33 @@ namespace RobotLocalization
       ros::Time startCrt = tmpPose.top().time_;
       ros::Time end = tmpPose.top().time_;
 
-      filter_.setLastFutureUpdateTime(start); //different time ??
+      // Use ground truth velocity
+      while(!measurementQueueCamVel_.empty())
+      {
+        Measurement twist = measurementQueueCamVel_.top();
+        measurementQueueCamVel_.pop();
+        Measurement pose;
+        std::vector<int> updatevector (15,0);
+        updatevector[6]=1;
+        updatevector[7]=1;
+        Measurement measurement = getMeasurementInput(pose, twist);
+        measurement.covariance_ = twist.covariance_;
+        measurement.mahalanobisThresh_ = twist.mahalanobisThresh_;
+        measurement.measurement_ = twist.measurement_;
+        measurement.time_ = twist.time_;
+        measurement.updateVector_ = updatevector;
+        measurement.topicName_ = twist.topicName_;
+
+        ControlQueue empty;
+        filter_.processMeasurement(measurement, empty);
+      }
+
+      filter_.setLastFutureUpdateTime(start);
       filter_.setFutureState(filter_.getState());
-      // run prediction and correction cycle with orientation measurements only
-      // save the results in future state variable for h-step ahead prediction
-//      double count = 0;
+
+//       run prediction and correction cycle with orientation measurements only
+//       save the results in future state variable for h-step ahead prediction
+      double count = 0;
 //      while((tmpPose.top().time_ - start) < (delayXYZ - ros::Duration(0.003)) && !tmpPose.empty() && !control_queue.empty() && count < 4)
 //      {
 //          tmpPose.pop();
@@ -627,7 +656,6 @@ namespace RobotLocalization
     else if (filter_.getInitializedStatus())
     {
       count_meaus = 0;
-      ROS_INFO("NO UPDATE");
       filter_.setFutureState(filter_.getState());
       // In the event that we don't get any measurements for a long time,
       // we still need to continue to estimate our state. Therefore, we
@@ -636,7 +664,6 @@ namespace RobotLocalization
       // If we get a large delta, then continuously predict until
       if (lastUpdateDelta >= filter_.getSensorTimeout())
       {
-        ROS_INFO("TIMEOUT ");
         RF_DEBUG("Sensor timeout! Last update time was " << filter_.getLastUpdateTime() <<
                  ", current time is " << currentTime.toSec() <<
                  ", delta is " << lastUpdateDelta.toSec() << "\n");
@@ -662,7 +689,6 @@ namespace RobotLocalization
       RF_DEBUG("Filter not yet initialized.\n");
     }
     RF_DEBUG("\n----- /RosFilter::integrateMeasurements ------\n");
-//    ROS_INFO_STREAM("count_meaus: " << count_meaus);
   }
 
   template<typename T>
@@ -676,7 +702,6 @@ namespace RobotLocalization
     count_meaus = 0;
     delay_correct = 0;
     NewMeasurement = false;
-//    ping.startSystem();
     std::map<StateMembers, int> absPoseVarCounts;
     absPoseVarCounts[StateMemberX] = 0;
     absPoseVarCounts[StateMemberY] = 0;
@@ -813,7 +838,7 @@ namespace RobotLocalization
     setPoseSub_ = nh_.subscribe<geometry_msgs::PoseWithCovarianceStamped>("set_pose",
                                                                           1,
                                                                           &RosFilter<T>::setPoseCallback,
-                                                                          this, ros::TransportHints().tcpNoDelay());
+                                                                          this, ros::TransportHints().tcpNoDelay(false));
 
     // Create a service for manually setting/resetting pose
     setPoseSrv_ = nh_.advertiseService("set_pose", &RosFilter<T>::setPoseSrvCallback, this);
@@ -823,22 +848,35 @@ namespace RobotLocalization
     filter_.setLastUpdateTime(ros::Time::now());
 
     //First we add control input. Right now, we only have one subscriber for control input
-     controlSub_ = nh_.subscribe<geometry_msgs::TwistStamped>("cmd_vel_stamped",
-                                        1,
-                                        boost::bind(&RosFilter<T>::ControlCallback,
-                                                    this,
-                                                    _1,
-                                                    "crt0"),
-                                                    ros::VoidPtr(), ros::TransportHints().tcpNoDelay());
+//    bool nodelayCrt = false;
+//    nhLocal_.param("control_nodelay", nodelayCrt, false);
+    controlSub_ = nh_.subscribe<geometry_msgs::TwistStamped>("cmd_vel_stamped",
+                                       1,
+                                       boost::bind(&RosFilter<T>::ControlCallback,
+                                                   this,
+                                                   _1,
+                                                   "crt0"),
+                                                   ros::VoidPtr(), ros::TransportHints().tcpNoDelay());
 
+     PingMode = false;
+     nhLocal_.param("pingMode", PingMode, false);
+     bool nodelayPing = false;
+     nhLocal_.param("ping_nodelay", nodelayPing, false);
+     if(PingMode == true)
+     {
+         pingSub_ = nh_.subscribe<std_msgs::String>("ardrone/ping",
+                                            1,
+                                            boost::bind(&RosFilter<T>::PingCallback,
+                                                        this,
+                                                        _1,
+                                                        "ping"),
+                                                        ros::VoidPtr(), ros::TransportHints().tcpNoDelay(nodelayPing));
+     }
+     else
+     {
+         navPing = ros::Duration(0.025);
+     }
 
-     pingSub_ = nh_.subscribe<std_msgs::String>("ardrone/ping",
-                                        1,
-                                        boost::bind(&RosFilter<T>::PingCallback,
-                                                    this,
-                                                    _1,
-                                                    "ping"),
-                                                    ros::VoidPtr(), ros::TransportHints().tcpNoDelay());
 
     // Now pull in each topic to which we want to subscribe.
     // Start with odom.
@@ -908,6 +946,8 @@ namespace RobotLocalization
 
         int odomQueueSize = 1;
         nhLocal_.param(odomTopicName + "_queue_size", odomQueueSize, 1);
+        bool nodelayOdom = false;
+        nhLocal_.param(odomTopicName + "_nodelay", nodelayOdom, false);
 
         if (poseUpdateSum + twistUpdateSum > 0)
         {
@@ -918,7 +958,7 @@ namespace RobotLocalization
                                                           this,
                                                           _1,
                                                           odomTopicName),
-                                                          ros::VoidPtr(), ros::TransportHints().tcpNoDelay()));
+                                                          ros::VoidPtr(), ros::TransportHints().tcpNoDelay(nodelayOdom)));
 
         }
         else
@@ -1302,14 +1342,17 @@ namespace RobotLocalization
         if (poseUpdateSum + twistUpdateSum + accelUpdateSum > 0)
         {
           // Create and store subscriptions and message filters as with odometry data
-          imuTopicSubs_.push_back(
+
+            bool nodelayImu = false;
+            nhLocal_.param(imuTopicName + "_nodelay", nodelayImu, false);
+            imuTopicSubs_.push_back(
             nh_.subscribe<sensor_msgs::Imu>(imuTopic,
                                             imuQueueSize,
                                             boost::bind(&RosFilter<T>::imuCallback,
                                                         this,
                                                         _1,
                                                         imuTopicName),
-                                                        ros::VoidPtr(), ros::TransportHints().tcpNoDelay()));
+                                                        ros::VoidPtr(), ros::TransportHints().tcpNoDelay(nodelayImu)));
         }
         else
         {
@@ -1593,6 +1636,7 @@ namespace RobotLocalization
   void RosFilter<T>::ControlCallback(const geometry_msgs::TwistStampedConstPtr &msg,
                                       const std::string &topicName)
   {
+    ROS_INFO("NEW Cont");
     Eigen::VectorXd  control(CONTROL_SIZE);
     control.setZero();
 
@@ -1612,7 +1656,6 @@ namespace RobotLocalization
       double ping = std::stod (ping_string);
       navPing = ros::Duration(ping*0.001);
   }
-
 
   template<typename T>
   void RosFilter<T>::odometryCallback(const nav_msgs::Odometry::ConstPtr &msg,

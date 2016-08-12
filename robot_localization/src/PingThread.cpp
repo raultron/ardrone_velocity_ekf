@@ -9,9 +9,10 @@
 
 PingThread::PingThread()
 {
+    // Based on Ping node of TU Munich PTAM
    line1[0] = '\0';
    keepRunning = false;
-   p500 = 35;
+   p500 = 25;
 }
 
 PingThread::~PingThread(void)
@@ -56,7 +57,7 @@ void PingThread::run()
 
    if(keepRunning)
    {
-       // ping
+       // ping twice, with a sleep in between
        p = popen(pingCommand500,"r");
        fgets(line1, 200, p);
        fgets(line1, 200, p);
@@ -65,7 +66,7 @@ void PingThread::run()
        // calculate new value
        double res500 = parsePingResult(line1);
 
-       // ping between 10 and 1000.
+       // clip between 10 and 1000.
        res500 = std::min(1000.0,std::max(10.0,res500));
 
        // set new value

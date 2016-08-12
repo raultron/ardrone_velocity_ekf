@@ -41,18 +41,18 @@ int main(int argc,char* argv[])
 {
    ros::init(argc, argv, "ping_node");
    ros::NodeHandle nh_;
+   // Publish Ping as string message
    ros::Publisher ping_pub = nh_.advertise<std_msgs::String>("ardrone/ping",1);
 
    PingThread ping;
 
    ping.startSystem();
-   ros::Rate loop_rate(0.5);
+   ros::Rate loop_rate(2);
    while(ros::ok())
    {
        ping.run();
        std_msgs::String ping_value;
        ping_value.data = std::to_string(ping.getDelay());
-       ROS_INFO_STREAM("ping: " << ping_value.data);
 
        ping_pub.publish(ping_value);
 

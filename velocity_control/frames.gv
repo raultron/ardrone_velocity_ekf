@@ -1,0 +1,9 @@
+digraph G {
+"odom" -> "ardrone_base_link"[label="Broadcaster: /ardrone_driver\nAverage rate: 199.265 Hz\nMost recent transform: 1465560473.669 ( 0.003 sec old)\nBuffer length: 4.958 sec\n"];
+"ardrone_base_link" -> "ardrone_base_frontcam"[label="Broadcaster: /ardrone_driver\nAverage rate: 10.209 Hz\nMost recent transform: 1465560473.610 ( 0.061 sec old)\nBuffer length: 4.800 sec\n"];
+"ardrone_base_link" -> "ardrone_base_bottomcam"[label="Broadcaster: /ardrone_driver\nAverage rate: 10.209 Hz\nMost recent transform: 1465560473.610 ( 0.061 sec old)\nBuffer length: 4.800 sec\n"];
+edge [style=invis];
+ subgraph cluster_legend { style=bold; color=black; label ="view_frames Result";
+"Recorded at time: 1465560473.672"[ shape=plaintext ] ;
+ }->"odom";
+}
