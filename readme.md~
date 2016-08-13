@@ -1,19 +1,19 @@
 # Velocity Controller - TU Darmstadt Parrot Ar.Drone 2.0 Quadcopter
 
-## Itroduction
+## Introduction
 This package is designed to control the translational velocities of the Parrot Ar.Drone 2.0.
 The main tasks of the package are the following:
 - synchronize the data from the different measurements
 - ensure a contineously state estimate 
 - compensate the inherrent time delays of the closed loop
 
-The whole system receives two packages and publishes two packages.
-**Input** <br />
+The whole system receives two packages and publishes two packages.  
+**Input**   
 
 - /ardrone/odometry
 - /cmd_vel_ref
 
-**Output** <br />
+**Output**  
 
 - /odometry/prediction
 - /PID/cmd_vel
@@ -55,7 +55,7 @@ This command will start all nodes together.
 - robot_localization -> ekf_localization
 - robot_localizazion -> ping_node
 
-For this purpose the EKF implementation is used and adopted to fit needs of this project. The core modifications are: <br />
+For this purpose the EKF implementation is used and adopted to fit needs of this project. The core modifications are:  
 
 1. Usage of the dynamical model of the parrot ardrone instead the default use of a 3 dimensional omnidirectional ground robot which is based on a linear identification of the ardrone.
 2. Added the ability to use control inputs of the ardrone for the kalman filter prediction state.
@@ -73,7 +73,7 @@ The orignal package can be found here: https://github.com/cra-ros-pkg/robot_loca
 
 This package is using a modified PID control algorithm to control the velocity of the parrot ardrone and is using the predicted state of the robot_localizazion package.
 The parameters of the controller can be changed dynamically. These means a change of parameters during the flight is possible. 
-The main modifications are: <br />
+The main modifications are:  
 
 1. Using of saturation to limit the output
 2. Anti-windup to limit the value of the integral part of the pid controller. 

@@ -16,7 +16,7 @@ The whole system receives two packages and publishes two packages.
 **Output**  
 
 - /odometry/prediction
-- /PID/cmd_vel
+- /PID/cmd_vel  
 The package needs the reference velocity and the measurements from the quadcopter to compute a future state vector and the actuating variable of the quadcopter.
 The wifi communication delay is contineously measusred.
 
