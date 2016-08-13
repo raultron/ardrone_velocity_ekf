@@ -8,11 +8,13 @@ The main tasks of the package are the following:
 - compensate the inherrent time delays of the closed loop
 
 The whole system receives two packages and publishes two packages.
-**Input**
+**Input** <br />
+
 - /ardrone/odometry
 - /cmd_vel_ref
 
-**Output**
+**Output** <br />
+
 - /odometry/prediction
 - /PID/cmd_vel
 The package needs the reference velocity and the measurements from the quadcopter to compute a future state vector and the actuating variable of the quadcopter.
@@ -53,7 +55,8 @@ This command will start all nodes together.
 - robot_localization -> ekf_localization
 - robot_localizazion -> ping_node
 
-For this purpose the EKF implementation is used and adopted to fit needs of this project. The core modifications are:
+For this purpose the EKF implementation is used and adopted to fit needs of this project. The core modifications are: <br />
+
 1. Usage of the dynamical model of the parrot ardrone instead the default use of a 3 dimensional omnidirectional ground robot which is based on a linear identification of the ardrone.
 2. Added the ability to use control inputs of the ardrone for the kalman filter prediction state.
 3. Added the ability to deal with delayed measurements without running the kalman filter in a delayed state.
@@ -70,7 +73,8 @@ The orignal package can be found here: https://github.com/cra-ros-pkg/robot_loca
 
 This package is using a modified PID control algorithm to control the velocity of the parrot ardrone and is using the predicted state of the robot_localizazion package.
 The parameters of the controller can be changed dynamically. These means a change of parameters during the flight is possible. 
-The main modifications are:
+The main modifications are: <br />
+
 1. Using of saturation to limit the output
 2. Anti-windup to limit the value of the integral part of the pid controller. 
 3. Smith filter for the derivative part. 
