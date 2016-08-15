@@ -83,8 +83,13 @@ The main modifications are:
 6. A open loop feedforward controller can be additionally used to accelerate the set point reaching based on calculated tilt angle. 
 
 
+**Package: velocity controller PID**   
+- coordinate_transformation -> run_transform
 
+This node provides a nonlinear coordinate transformation from the camera frame to the quadcopter frame.
+The transformation has two steps. Firstly, the transformation from the camera to the marker frame is performed. Secondly, a transformation from the marker frame to the quadcopter frame is performed. 
+To do this, the marker has to be aligned in a predefined configuration. Here, the markers y-direction points in the minus x-direction of the quadcopter (oppsite direction of the quadcopter front camera). 
 
-
+![alt text](transform.png "Marker on quadcopter")
 
 
