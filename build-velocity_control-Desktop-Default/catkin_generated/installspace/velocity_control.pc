@@ -1,8 +1,0 @@
-prefix=/usr/local
-
-Name: velocity_control
-Description: Description of velocity_control
-Version: 0.0.0
-Cflags: -I/usr/local/include
-Libs: -L/usr/local/lib 
-Requires: dynamic_reconfigure geometry_msgs nav_msgs roscpp rospy std_msgs tf2

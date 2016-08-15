@@ -1,8 +1,0 @@
-prefix=/home/tobias/tum_ws/src/ardrone_velocity/build-velocity_control-Desktop-Default/devel
-
-Name: velocity_control
-Description: Description of velocity_control
-Version: 0.0.0
-Cflags: -I/home/tobias/tum_ws/src/ardrone_velocity/build-velocity_control-Desktop-Default/devel/include -I/home/tobias/tum_ws/src/ardrone_velocity/velocity_control/include
-Libs: -L/home/tobias/tum_ws/src/ardrone_velocity/build-velocity_control-Desktop-Default/devel/lib 
-Requires: dynamic_reconfigure geometry_msgs nav_msgs roscpp rospy std_msgs tf2
