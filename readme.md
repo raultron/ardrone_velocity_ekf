@@ -27,7 +27,7 @@ The wifi communication delay is contineously measusred.
 
 ## Installation
 Open a terminal and go to your catkin workspace for example catkin_ws or you can create a new workspace. 
-Then clone the repository in your /src folder of your workspace and build it using catkin_make command. 
+Then clone the repository in your /src folder of your workspace and build it using catkin_make command.   
 For example: 
 
 **Terminal:**
@@ -51,8 +51,8 @@ This command will start all nodes together.
 
 ## Detailed Information 
 
-**Package: robot_localization**
-- robot_localization -> ekf_localization
+**Package: robot_localization**  
+- robot_localization -> ekf_localization  
 - robot_localizazion -> ping_node
 
 For this purpose the EKF implementation is used and adopted to fit needs of this project. The core modifications are:  
@@ -68,7 +68,7 @@ For this purpose the EKF implementation is used and adopted to fit needs of this
 
 The orignal package can be found here: https://github.com/cra-ros-pkg/robot_localization
 
-**Package: velocity controller PID** 
+**Package: velocity controller PID**   
 - velocity_control -> run_control
 
 This package is using a modified PID control algorithm to control the velocity of the parrot ardrone and is using the predicted state of the robot_localizazion package.
