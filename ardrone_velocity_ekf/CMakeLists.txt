@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(velocity_control)
+project(ardrone_velocity_ekf)
 SET(CMAKE_CXX_FLAGS "-std=c++0x")
 
 ## Find catkin macros and libraries
@@ -68,11 +68,4 @@ target_link_libraries(run_control pid_control ${catkin_LIBRARIES} ${EIGEN3_LIBRA
 target_link_libraries(pid_control filtervelocity ${catkin_LIBRARIES} ${EIGEN3_LIBRARIES})
 target_link_libraries(coordinate_transform filtervelocity ${catkin_LIBRARIES} ${EIGEN3_LIBRARIES})
 target_link_libraries(run_transform  coordinate_transform  ${catkin_LIBRARIES} ${EIGEN3_LIBRARIES})
-
-##################
-# FOR QT CREATOR
-##################
-file(GLOB_RECURSE QT_MOC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} FOLLOW_SYMLINKS include/*.h)
-FILE(GLOB_RECURSE INC_ALL "include/ardrone_velocity/*.hpp")
-FILE(GLOB_RECURSE ${CMAKE_CURRENT_SOURCE_DIR} FOLLOW_SYMLINKS src/*.cpp)
 

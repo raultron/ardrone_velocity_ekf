@@ -1,13 +1,14 @@
 <?xml version="1.0"?>
 <package>
-  <name>velocity_control</name>
+  <name>ardrone_velocity_ekf</name>
   <version>0.0.0</version>
-  <description>The velocity_control package</description>
+  <description>A quadcopter velocity controller based on filtered odometry readings.
+                We use a modified robot_localization based kalman filter with the internal model of an Ardrone 2.0</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->
   <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
-  <maintainer email="tobias.tuylu@gmail.com">Tobias</maintainer>
+  <maintainer email="racuna@rmr.tu-darmstadt.de">Raul Acuna</maintainer>
 
 
   <!-- One license tag required, multiple allowed, one license per tag -->

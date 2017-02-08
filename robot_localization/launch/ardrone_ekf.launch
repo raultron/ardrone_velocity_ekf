@@ -3,7 +3,7 @@
 <launch>
 
   
-    <node pkg="robot_localization" type="ekf_localization_node" name="ekf_localization" clear_params="true">
+    <node pkg="robot_localization" type="ekf_localization_node" name="ardrone_ekf" clear_params="true">
     <param name="frequency" value="30"/>
     <param name="sensor_timeout" value="0.3"/>
     <param name="two_d_mode" value="false"/>
@@ -17,8 +17,8 @@
       <param name="transform_time_offset" value="0.0"/>
 
 
-      <param name="odom0" value="ardrone/odometry_new"/>
-      <param name="odom1" value="ardrone/odometry_new"/>  
+      <param name="odom0" value="ardrone/odometry"/>
+      <param name="odom1" value="ardrone/odometry"/>
   <!-- Ground truth velocity -> external camera -->
   <!--     <param name="odom2" value="ardrone/velocity_groundtruth"/>  -->
 
@@ -98,8 +98,7 @@
                                                   0,    0,    0,    0,    0,    0,    0,     0,     0,    0,    0,    0,    0,    0,    0.015]</rosparam>
 
 
-      <!--  The values are ordered as x, y,
-           z, roll, pitch, yaw, vx, vy, vz, vroll, vpitch, vyaw, ax, ay, az. Defaults to the matrix below if unspecified. -->
+      <!--  The values are ordered as x, y, z, roll, pitch, yaw, vx, vy, vz, vroll, vpitch, vyaw, ax, ay, az. Defaults to the matrix below if unspecified. -->
            <rosparam param="initial_estimate_covariance">[0.256, 0,    0,    0,     0,     0,     0,    0,    0,    0,     0,     0,     0,    0,    0,
                                                           0,    0.256, 0,    0,     0,     0,     0,    0,    0,    0,     0,     0,     0,    0,    0,
                                                           0,    0,    0.256, 0,     0,     0,     0,    0,    0,    0,     0,     0,     0,    0,    0,

@@ -8,9 +8,9 @@
 #include <eigen3/Eigen/Dense>
 #include "std_msgs/Bool.h"
 #include "std_msgs/String.h"
-#include "ardrone_velocity/filtervelocity.hpp"
+#include "ardrone_velocity_ekf/filtervelocity.hpp"
 #include <dynamic_reconfigure/server.h>
-#include <velocity_control/dynamic_param_configConfig.h>
+#include <ardrone_velocity_ekf/dynamic_param_configConfig.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <ardrone_autonomy/Navdata.h>
 #include <tf/transform_broadcaster.h>
@@ -28,7 +28,7 @@ public:
     void PingCallback(const std_msgs::StringConstPtr &ping_msg);
     void CamCallback(const geometry_msgs::PoseStamped &cam);
 
-    void dynamic_reconfigure_callback(velocity_control::dynamic_param_configConfig &config, uint32_t level);
+    void dynamic_reconfigure_callback(ardrone_velocity_ekf::dynamic_param_configConfig &config, uint32_t level);
 
     // PID Controller
     void pid_control();
@@ -78,7 +78,7 @@ private:
     FilterVelocity filtervy;
     FilterVelocity filter_yaw;
 
-    dynamic_reconfigure::Server<velocity_control::dynamic_param_configConfig> m_server;
+    dynamic_reconfigure::Server<ardrone_velocity_ekf::dynamic_param_configConfig> m_server;
     double derv_filter, derv_median, derv_smith, er, vl;
 
     ros::Duration navPing;

@@ -1,9 +1,9 @@
-#include "ardrone_velocity/pid_control.h"
+#include "ardrone_velocity_ekf/pid_control.h"
 #include "math.h"
 #include <eigen3/Eigen/Dense>
 #include "std_msgs/Bool.h"
 #include "std_msgs/String.h"
-#include "ardrone_velocity/filtervelocity.hpp"
+#include "ardrone_velocity_ekf/filtervelocity.hpp"
 #include <tf/transform_broadcaster.h>
 #include <tf/transform_listener.h>
 #include <ardrone_autonomy/Navdata.h>
@@ -19,7 +19,7 @@ PID_Control::PID_Control()
     //Param
     params.param<std::string>("cmd_vel_ref_topic", s1, "cmd_vel_ref");
     params.param<std::string>("odometry_topic", s2, "odometry/prediction");
-    params.param<std::string>("cmd_vel_out_topic", s3, "pid/cmd_vel");
+    params.param<std::string>("cmd_vel_out_topic", s3, "cmd_vel");
     params.param<std::string>("WLAN_PING", s4, "ardrone/ping");
     params.param<std::string>("Ext_quad_pose", s5, "/quad_pose");
 
@@ -34,7 +34,7 @@ PID_Control::PID_Control()
 
 
     // Dynamic parameter reconfigure
-    dynamic_reconfigure::Server<velocity_control::dynamic_param_configConfig>::CallbackType f;
+    dynamic_reconfigure::Server<ardrone_velocity_ekf::dynamic_param_configConfig>::CallbackType f;
     f = boost::bind(&PID_Control::dynamic_reconfigure_callback, this, _1, _2);
     m_server.setCallback(f);
 
@@ -102,7 +102,7 @@ void PID_Control::OdoCallback(const nav_msgs::Odometry& odo_msg)
 }
 
 bool first_reconfig = true;
-void PID_Control::dynamic_reconfigure_callback(velocity_control::dynamic_param_configConfig &config, uint32_t level)
+void PID_Control::dynamic_reconfigure_callback(ardrone_velocity_ekf::dynamic_param_configConfig &config, uint32_t level)
 {
     if (first_reconfig)
     {

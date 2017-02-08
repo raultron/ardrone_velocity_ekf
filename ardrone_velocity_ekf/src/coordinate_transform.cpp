@@ -1,9 +1,9 @@
 #include "math.h"
-#include "ardrone_velocity/coordinate_transform.h"
+#include "ardrone_velocity_ekf/coordinate_transform.h"
 #include <eigen3/Eigen/Dense>
 #include "std_msgs/Bool.h"
 #include "std_msgs/String.h"
-#include "ardrone_velocity/filtervelocity.hpp"
+#include "ardrone_velocity_ekf/filtervelocity.hpp"
 #include <tf/transform_broadcaster.h>
 #include <tf/transform_listener.h>
 #include <ardrone_autonomy/Navdata.h>

@@ -8,9 +8,9 @@
 #include <eigen3/Eigen/Dense>
 #include "std_msgs/Bool.h"
 #include "std_msgs/String.h"
-#include "ardrone_velocity/filtervelocity.hpp"
+#include "ardrone_velocity_ekf/filtervelocity.hpp"
 #include <dynamic_reconfigure/server.h>
-#include <velocity_control/dynamic_param_configConfig.h>
+#include <ardrone_velocity_ekf/dynamic_param_configConfig.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <ardrone_autonomy/Navdata.h>
 #include <tf/transform_broadcaster.h>
