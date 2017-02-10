@@ -104,11 +104,11 @@ void PID_Control::OdoCallback(const nav_msgs::Odometry& odo_msg)
 bool first_reconfig = true;
 void PID_Control::dynamic_reconfigure_callback(ardrone_velocity_ekf::dynamic_param_configConfig &config, uint32_t level)
 {
-    if (first_reconfig)
-    {
-      first_reconfig = false;
-      return;     // Ignore the first call to reconfigure which happens at startup
-    }
+//    if (first_reconfig)
+//    {
+//      first_reconfig = false;
+//      return;     // Ignore the first call to reconfigure which happens at startup
+//    }
   gain_xy(0) = config.Kp;
   gain_xy(1) = config.Ki;
   gain_xy(2) = config.Kd;
@@ -136,6 +136,7 @@ void PID_Control::dynamic_reconfigure_callback(ardrone_velocity_ekf::dynamic_par
 
 void PID_Control::pid_control()
 {
+    geometry_msgs::Twist control_output_pid;
     // max speed in m/s
     Eigen::Vector2d max;
     max(0) = 0.6;
@@ -145,6 +146,8 @@ void PID_Control::pid_control()
     command.linear.y = std::min(max(1), std::max(-max(1), command.linear.y));
     command_vec(0) = command.linear.x;
     command_vec(1) = command.linear.y;
+
+    control_output_pid = command;
 
     // Error -> P-Term
     error_xy(0) = command.linear.x - vel_xy(0);
@@ -251,8 +254,7 @@ void PID_Control::pid_control()
     if (fabs(yaw_error*180/M_PI) < 5)
         yaw_error = 0;
 
-    // Set controller to zero around hover state, velocities smaller than 0.01 m/s
-    // Internal controller stabilizes the quadcopter around hover regime//
+    // Set controller to zero around hover state, when 0 velocity required.
      if(command.linear.x == 0 && command.linear.y == 0 && command.angular.z == 0)
      {
          set_hover();
@@ -261,7 +263,7 @@ void PID_Control::pid_control()
          return;
      }
 
-    // If delay is to high is not available go to hover.
+    // If delay is to high then go to hover.
     if (navPing.toSec() >= 0.200)
     {
         set_hover();
@@ -271,24 +273,23 @@ void PID_Control::pid_control()
     }
 
 
+
+
     // Calculate outputs -> tilt angle output_value*12 = ref_tilt_angle
-    geometry_msgs::Twist control_output_pid;
+
     control_output_pid.linear.x = Control(0,0)*gain_xy(0) + Control(1,0)*gain_xy(1) + Control(2,0)*gain_xy(2);
     control_output_pid.linear.y = Control(0,1)*gain_xy(0) + Control(1,1)*gain_xy(1) + Control(2,1)*gain_xy(2);
-    control_output_pid.angular.z = yaw_error*gain_yaw;
-    if (command.angular.z == 0)
-    {
-        control_output_pid.angular.z = 0;
-    }
 
-    // Enable auto-hover on default
-    control_output_pid.angular.x = 0;
-    control_output_pid.angular.y = 0;
 
     // Based on u(k)
     control_output_pid.linear.x = std::min(max_output(0), std::max(-max_output(0), control_output_pid.linear.x));
     control_output_pid.linear.y = std::min(max_output(1), std::max(-max_output(1), control_output_pid.linear.y));
-    control_output_pid.angular.z = std::min(max_output(1), std::max(-max_output(1), control_output_pid.angular.z));
+
+
+    // We dont want to hover unless is required.
+    control_output_pid.angular.x = 1;
+    control_output_pid.angular.y = 1;
+
 
 //    // Debugging information
 //    ros::Time now = ros::Time::now();

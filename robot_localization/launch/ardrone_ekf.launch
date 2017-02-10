@@ -23,7 +23,7 @@
   <!--     <param name="odom2" value="ardrone/velocity_groundtruth"/>  -->
 
       <!--  The order of the values is ref_roll, ref_pitch, ref_delta_height / gaz, ref_delta_yaw -->
-      <param name="crt0" value="cmd_vel_stamped"/>
+      <param name="crt0" value="/merge/cmd_vel_stamped"/>
 
       <!--  The order of the values is x, y, z, roll, pitch, yaw, vx, vy, vz, vroll, vpitch, vyaw, ax, ay, az. -->
       <rosparam param="odom0_config">[false, false, true,

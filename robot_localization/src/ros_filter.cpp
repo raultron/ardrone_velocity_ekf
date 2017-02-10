@@ -850,7 +850,9 @@ namespace RobotLocalization
     //First we add control input. Right now, we only have one subscriber for control input
 //    bool nodelayCrt = false;
 //    nhLocal_.param("control_nodelay", nodelayCrt, false);
-    controlSub_ = nh_.subscribe<geometry_msgs::TwistStamped>("cmd_vel_stamped",
+    std::string control_input_topic;
+    nhLocal_.param<std::string>("crt0", control_input_topic, "cmd_vel_stramped");
+    controlSub_ = nh_.subscribe<geometry_msgs::TwistStamped>(control_input_topic,
                                        1,
                                        boost::bind(&RosFilter<T>::ControlCallback,
                                                    this,

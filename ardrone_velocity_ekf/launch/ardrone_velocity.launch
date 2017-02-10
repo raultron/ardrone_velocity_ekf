@@ -5,12 +5,16 @@
     <include file="$(find robot_localization)/launch/ardrone_ekf.launch"/>
   
     <node pkg="robot_localization" type="ping_node" name="ping_node" clear_params="true">
-      <param name="cmd_vel_ref_topic" value="/merge/cmd_vel" />
-      <param name="cmd_vel_out_topic" value="/cmd_vel" />
     </node>
-    <node pkg="ardrone_velocity_ekf" type="run_control" name="ardrone_velocity_ekf" clear_params="true">
+    <!--node pkg="ardrone_velocity_ekf" type="run_control" name="ardrone_velocity_ekf" clear_params="true">
       <param name="cmd_vel_ref_topic" value="/merge/cmd_vel" />
       <param name="cmd_vel_out_topic" value="/cmd_vel" />
+    </node-->
+
+    <node pkg="ardrone_velocity" type="pid_control" name="ardrone_velocity_pid" clear_params="true">
+      <param name="cmd_vel_ref_topic" value="/merge/cmd_vel" />
+      <param name="cmd_vel_out_topic" value="/cmd_vel" />
+      <param name="odometry_topic" value="/odometry/prediction" />
     </node>
 
 </launch>
